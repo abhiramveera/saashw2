@@ -15,8 +15,7 @@ class MoviesController < ApplicationController
       ordering = {:order => :release_date}
     end
     @all_ratings = Movie.select(:rating).map(&:rating).uniq.sort
-    @selected_rating = params[:ratings] || {}
-
+    @selected_rating = params[:ratings] || {"G" =>1, "PG"=>1, "PG-13"=>1, "R"=>1}
     @movies = Movie.find_all_by_rating(@selected_rating.keys, ordering)
   end
 
