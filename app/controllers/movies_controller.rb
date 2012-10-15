@@ -8,6 +8,7 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.order(params[:order])
+    ratings
   end
 
   def new
@@ -38,8 +39,8 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
-  def movies_by_title
-    @movies = Movie.order("title")
+  def ratings
+    @all_ratings=Movie.find(:all, :select => "rating").map(&:rating).uniq.sort  
   end
 
 end
