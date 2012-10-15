@@ -7,7 +7,7 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.order(params[:order])
+    @movies = Movie.find(:all, {:order => params[:order_by]},:conditions => {:rating => ratings_clicked} )
     ratings
   end
 
@@ -42,5 +42,12 @@ class MoviesController < ApplicationController
   def ratings
     @all_ratings=Movie.find(:all, :select => "rating").map(&:rating).uniq.sort  
   end
-
+  
+  def ratings_clicked
+      if params[:ratings] == nil
+        @checked_box = ratings
+      else
+         @checked_box = params[:ratings].keys
+      end     
+  end
 end
