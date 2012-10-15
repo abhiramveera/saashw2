@@ -7,8 +7,17 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.find(:all, {:order => params[:order_by]},:conditions => {:rating => ratings_clicked} )
-    ratings
+    sort = params[:order_by]
+    case sort
+    when 'title'
+      ordering = {:order => :title}
+    when 'release_date'
+      ordering = {:order => :release_date}
+    end
+    @all_ratings = Movie.select(:rating).map(&:rating).uniq.sort
+    @selected_rating = params[:ratings] || {}
+
+    @movies = Movie.find_all_by_rating(@selected_rating.keys, ordering)
   end
 
   def new
@@ -37,17 +46,5 @@ class MoviesController < ApplicationController
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
-  end
-
-  def ratings
-    @all_ratings=Movie.find(:all, :select => "rating").map(&:rating).uniq.sort  
-  end
-  
-  def ratings_clicked
-      if params[:ratings] == nil
-        @checked_box = ratings
-      else
-         @checked_box = params[:ratings].keys
-      end     
   end
 end
