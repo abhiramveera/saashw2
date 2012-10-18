@@ -7,15 +7,35 @@ class MoviesController < ApplicationController
   end
 
   def index
-    sort = params[:order_by]
+    sort = params[:order_by] || session[:order_by]
     case sort
     when 'title'
       ordering = {:order => :title}
     when 'release_date'
       ordering = {:order => :release_date}
+    else
+      ordering = nil
     end
     @all_ratings = Movie.select(:rating).map(&:rating).uniq.sort
-    @selected_rating = params[:ratings] || {"G" =>1, "PG"=>1, "PG-13"=>1, "R"=>1}
+    @selected_rating = params[:ratings] || session[:ratings] || {}
+
+    if @selected_rating == {}
+       @selected_rating = {"G" =>1, "PG"=>1, "PG-13"=>1, "R"=>1}     
+    end   
+    
+    if params[:order_by] != session[:order_by]
+       session[:order_by] = sort
+       flash.keep
+       redirect_to :order_by => sort, :ratings => @selected_rating and return
+    end
+
+    if params[:ratings] != session[:ratings]
+       session[:order_by] = sort
+       session[:ratings] = @selected_rating
+       flash.keep
+       redirect_to :order_by => sort, :ratings => @selected_rating and return
+    end 
+
     @movies = Movie.find_all_by_rating(@selected_rating.keys, ordering)
   end
 
